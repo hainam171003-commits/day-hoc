@@ -389,12 +389,36 @@ function getFundRange(){
  return {from,to};
 }
 function calculateIncomeRange(from,to){
- return data.lessons.reduce((sum,l)=>{
+ const teachingIncome=data.lessons.reduce((sum,l)=>{
   const m=l.date.slice(0,7);
-  if(!monthInRange(m,from,to))return sum;
-  const s=data.students.find(x=>x.id===l.studentId);
+
+  if(!monthInRange(m,from,to))
+   return sum;
+
+  const s=data.students.find(
+   x=>x.id===l.studentId
+  );
+
   return sum+(s?s.fee:0);
+
  },0);
+
+ const expenses=data.expenses.reduce((sum,e)=>{
+  const m=
+   e.month ||
+   String(e.date||"").slice(0,7);
+
+  if(!monthInRange(m,from,to))
+   return sum;
+
+  return sum+(Number(e.amount)||0);
+
+ },0);
+
+ return Math.max(
+  0,
+  teachingIncome-expenses
+ );
 }
 function renderFunds(){
  const {from,to}=getFundRange();
